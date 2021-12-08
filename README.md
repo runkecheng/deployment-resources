@@ -1,8 +1,6 @@
 ## online deployment
 
 ```
-chmod -x deployment/online_deploy.sh
-
 ## template
 . deployment/online_deploy.sh <version> <yaml>
 
@@ -20,7 +18,6 @@ chmod -x deployment/online_deploy.sh
 execute at every worker.
 
 ```
-chmod -x utils/load_images.yaml
 . utils/load_images.yaml <version>
 ```
 
@@ -49,6 +46,5 @@ kubectl apply -f sample/mysqlcluster_<version>.yaml
 ### export mysql yaml
 
 ```
-chmod -x utils/export_sample.sh
-. utils/export_config.sh
+. utils/export_config.sh <name> <ns>
 ```

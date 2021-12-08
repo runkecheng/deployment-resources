@@ -1,4 +1,4 @@
-version=$1
+tag=$1
 sample_yaml=$2
 
 exist_crd=$(kubectl get crd | grep mysql.radondb.com)
@@ -25,10 +25,9 @@ main(){
 
 install_radondb_mysql(){
     echo "installing ..."
-    add_repo
-    install_operator $1
-    install_mysqlcluster $1
-    echo "Welcome to RadonDB MySQL($1)"
+    install_operator $tag
+    install_mysqlcluster $tag
+    echo "Welcome to RadonDB MySQL($tag)"
     echo "More doc: https://github.com/radondb/radondb-mysql-kubernetes#features"
 }
 
@@ -43,6 +42,14 @@ metadata:
   name: sample
 spec:
   replicas: 3
+  podPolicy:
+    sidecarImage: runkecheng/mysql-sidecar:$tag
+  persistence:
+    accessModes:
+    - ReadWriteOnce
+    enabled: true
+    size: 10Gi
+    storageClass: local-storage
 EOF
     fi
 }
@@ -58,21 +65,10 @@ install_operator(){
             helm delete $exist_operator_name -n $exist_operator_ns
         fi
     fi
-    case $1 in
-    "v2.1.0")
-        helm install demo radondb/mysql-operator --version 0.1.0 -n radondb-mysql
-        ;;
-    "v2.1.1")
-        helm install demo radondb/mysql-operator --version 0.1.1 -n radondb-mysql
-        ;;
-    *)
-    echo "invalid version"
-    esac
-    sleep 5
-}
 
-add_repo(){
-    helm repo add radondb https://radondb.github.io/radondb-mysql-kubernetes/ && helm repo update
+    helm install demo charts/mysql-operator --set manager.image=runkecheng/mysql-operator --set manager.tag=$tag
+
+    sleep 5
 }
 
 delete_crds(){
